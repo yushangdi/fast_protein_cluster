@@ -601,7 +601,7 @@ int main(int argc, char *argv[]){
  } 
  #endif
 
- 
+ // finish reading args
  if(all_atoms_flag){
   if(cluster_options.score_type==TMSCORE || prune_options.score_type==TMSCORE){
    fprintf(stderr,"all_atoms option presently only supported for RMSD - will continue with using only CA coords\n");
@@ -698,7 +698,7 @@ int main(int argc, char *argv[]){
   cluster_it<unsigned char>(nthreads,&cluster_options,models,seed);   
  }
  else if(cluster_options.distance_matrix_type == FLOAT){
-  cluster_models_set<float> *models=(cluster_models_set<float>*)vprune_models;     
+  cluster_models_set<float> *models=(cluster_models_set<float>*)vprune_models;   //==0  
   cluster_it<float>(nthreads,&cluster_options,models,seed);
  }
 }
@@ -882,7 +882,7 @@ void cluster_it(int nthreads,cluster_options *cluster_options,cluster_models_set
   open_file(&matrix_fp, cluster_options->write_matrix_filename, "w", "cluster_it");
   char temp_filename[FILENAME_LENGTH];;
    sprintf(temp_filename,"%s.names",cluster_options->output_filename);
-   models->write_names_to_file(temp_filename,0,0);
+//    models->write_names_to_file(temp_filename,0,0);
   if (cluster_options->write_matrix_type == BINARY){
    models->dmatrix->write_matrix_to_binary_file(matrix_fp);
   } 
@@ -967,7 +967,7 @@ void cluster_it(int nthreads,cluster_options *cluster_options,cluster_models_set
 //   }
 //   hcluster.print_centers(stderr,hcluster.best_partition);
 
-//   fprintf(stderr, "%8.3f seconds elapsed to cluster\n",get_time()-start_cluster);
+  fprintf(stderr, "%8.3f seconds elapsed to cluster\n",get_time()-start_cluster);
 //   FILE *output_fp;
 //   char temp_filename[FILENAME_LENGTH];
 //   sprintf(temp_filename,"%s.cluster.stats",cluster_options->output_filename);

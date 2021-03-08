@@ -3679,7 +3679,11 @@ class cluster_models_set{ //contains names and coords of structures along with d
     gpu_id=va_arg(args,int);
     va_end(args);
     double start_time = get_time();  
+    if(score_type == EUCLIDEANSCORE){
+    read_list_of_models_euclidean(names_filename,nthreads);//initializes nat and pdb_size and nmodels
+    }else{
     read_list_of_models(names_filename,nthreads);//initializes nat and pdb_size and nmodels
+    }
     double end_time = get_time();
     fprintf(stderr, "%8.3f seconds elapsed for coords I/O\n",end_time-start_time);
     start_time = get_time();
@@ -4178,6 +4182,47 @@ class cluster_models_set{ //contains names and coords of structures along with d
    //check_coords();
    return(nstructs);
   }  
+  int read_list_of_models_euclidean(char *filename,int nthreads){
+  FILE *pFile;
+  char line[LINE_LENGTH];
+  int nstructs=0, m=0, i;
+  float f, a_x, a_y, a_z;
+  pdb_size = 3;
+  nat = 1;
+  open_file(&pFile, filename, "r", "reading coords"); 
+  while (fgets(line, LINE_LENGTH, pFile)){
+    if(line[0] != '\n'){
+     nstructs++;
+    }
+  }
+  coords= (float*) memalign(32,nstructs*pdb_size*sizeof(float));
+  rewind(pFile);
+      for(i=0;i<nstructs;i++)
+      {
+        if(1  == fscanf(pFile, "%f", &f)){
+        a_x = f;
+        }else{
+        printf("Failed to read point.\n");
+        }
+        if(1  == fscanf(pFile, "%f", &f)){
+        a_y = f;
+        }else{
+        printf("Failed to read point.\n");
+        }
+        if(1  == fscanf(pFile, "%f", &f)){
+        a_z = f;
+        }else{
+        printf("Failed to read point.\n");
+        }
+
+       coords[m++]=a_x;
+       coords[m++]=a_y;
+       coords[m++]=a_z;
+    }
+   //check_coords();
+   nmodels=nstructs;
+   return(nstructs);
+  }  
   void get_coords_from_names(){
    //structures are assumed to be identical - only CA unless all_atom_flag is set
    if(!nat){
@@ -4192,7 +4237,68 @@ class cluster_models_set{ //contains names and coords of structures along with d
     nat=read_coords(&(names[names_offsets[i]]),&(coords[pdb_size*i]),0,1,all_atoms_flag);
    }
   }
- 
+
+  //  int read_coords_euclidean(char *filename,float *coords,int count_only,int center_coords,int mode, int point_nums){
+  //  FILE *conformation_fp;
+  //  char line[LINE_LENGTH],a_name[5];
+  //  float a_x, a_y, a_z, f;
+  //  int atom_id,res_id,m=0;
+  //  float sum_x=0,sum_y=0,sum_z=0;
+  //  open_file(&conformation_fp, filename, "r", 0);
+  //  int i;
+  //  if(!count_only){
+  //     for(i=0;i<point_nums;i++)
+  //     {
+  //       if(1  == fscanf(conformation_fp, "%f", &f)){
+  //       a_x = f;
+  //       }else{
+  //       printf("Failed to read point.\n");
+  //       }
+  //       if(1  == fscanf(conformation_fp, "%f", &f)){
+  //       a_y = f;
+  //       }else{
+  //       printf("Failed to read point.\n");
+  //       }
+  //       if(1  == fscanf(conformation_fp, "%f", &f)){
+  //       a_z = f;
+  //       }else{
+  //       printf("Failed to read point.\n");
+  //       }
+
+  //      coords[m++]=a_x;
+  //      coords[m++]=a_y;
+  //      coords[m++]=a_z;
+  //      if(center_coords)
+  //      {
+  //       sum_x+=a_x;
+  //       sum_y+=a_y;
+  //       sum_z+=a_z;
+  //      }
+  //   }
+  //  }else{
+  //     while (fgets(line, LINE_LENGTH, conformation_fp)){
+  //       m+=3; 
+  //     }
+  //  }
+
+  //  if(center_coords)
+  //  {
+  //   float nat=(float)(m/3);
+  //   int n=0;
+  //   sum_x/=nat;
+  //   sum_y/=nat;
+  //   sum_z/=nat;
+  //   for(int i=0;i<nat;i++)
+  //   {
+  //    coords[n++]-=sum_x;
+  //    coords[n++]-=sum_y;
+  //    coords[n++]-=sum_z;
+  //   }
+  //  }
+  //  close_file(&conformation_fp, filename, 0);
+  //  return(m/3);
+  // }
+  
    int read_coords(char *filename,float *coords,int count_only,int center_coords,int mode){
    FILE *conformation_fp;
    char line[LINE_LENGTH],a_name[5];

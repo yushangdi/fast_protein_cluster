@@ -6,3 +6,5 @@ libtmscore_cpu.o
 output.agglomeration.history
 output.cluster.stats
 output.clusters
+dist_matrix.txt
+output.names
