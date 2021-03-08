@@ -354,6 +354,23 @@ int score_fun_dcoords(int nat, float d0, float d, double R[3][3], double t[3],do
  *nalign=ncut;
  return(1);
 }
+float euclidean_cpu(int nat,float *coords1,float *coords2){
+ float ssq=0;
+
+ for (int i=0;i<nat;i++){
+  int m=3*i;
+  float c1x=coords1[m];
+  float c1y=coords1[m+1];
+  float c1z=coords1[m+2];
+  float c2x=coords2[m];
+  float c2y=coords2[m+1];
+  float c2z=coords2[m+2];
+  ssq += (c1x - c2x) *  (c1x - c2x) + (c1y - c2y) *  (c1y - c2y) + (c1z - c2z) *  (c1z - c2z);
+  
+ }
+  rms=sqrt(ssq);
+ return(rms);
+}
 float rmsd_cpu(int nat,float *coords1,float *coords2){
  double e0=0,d,rr[6], ss[6], e[3],r[3][3],rms=0;
  double spur, det, cof, h, g, cth, sth, sqrth, p, sigma;

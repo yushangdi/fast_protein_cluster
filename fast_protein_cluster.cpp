@@ -156,7 +156,11 @@ int main(int argc, char *argv[]){
       else if(!strcmp(switch_word,"CLUSTER_TMSCORE") || !strcmp(switch_word,"cluster_tmscore"))
       {
        cluster_options.score_type=TMSCORE;
-      }      
+      }
+      else if(!strcmp(switch_word,"EUCLIDEAN") || !strcmp(switch_word,"euclidean"))
+      {
+       cluster_options.score_type=EUCLIDEANSCORE;
+      }        
       //SIMD TYPE
 #ifdef SSE2      
       else if(!strcmp(switch_word,"SSE2") || !strcmp(switch_word,"sse2"))
@@ -948,32 +952,33 @@ void cluster_it(int nthreads,cluster_options *cluster_options,cluster_models_set
    fprintf(stderr,"using average distance between elements as cluster distance\n");
    hcluster.best_partition->reduce_by_agglomeration_average(cluster_options->nclusters,hcluster.models,history,0,1,nthreads);
   }
-  
-  if(history){//print out history of groups joined
-   FILE *fp;   
-   char temp_filename[FILENAME_LENGTH];;
-   sprintf(temp_filename,"%s.agglomeration.history",cluster_options->output_filename);
-   fprintf(stderr,"writing out history file\n");
-   open_file(&fp,temp_filename, "w", 0);
-   for(int n=0;n<models->nmodels;n++)
-    fprintf(fp,"%d %d %d\n",n,history[2*n],history[2*n+1]);
-   close_file(&fp,temp_filename, 0);
-   if(history) delete [] history;
-  }
-  hcluster.print_centers(stderr,hcluster.best_partition);
 
-  fprintf(stderr, "%8.3f seconds elapsed to cluster\n",get_time()-start_cluster);
-  FILE *output_fp;
-  char temp_filename[FILENAME_LENGTH];
-  sprintf(temp_filename,"%s.cluster.stats",cluster_options->output_filename);
-  open_file(&output_fp, temp_filename, "w", "main"); 
-  hcluster.print_centers(output_fp,hcluster.best_partition);
-  hcluster.print_cluster_stats(output_fp,hcluster.best_partition);
-  close_file(&output_fp,temp_filename,"main");
-  sprintf(temp_filename,"%s.clusters",cluster_options->output_filename);
-  open_file(&output_fp, temp_filename, "w", "main"); 
-  hcluster.print_density(output_fp,hcluster.best_partition);
-  close_file(&output_fp,temp_filename,"main");
+      ///// commented
+//   if(history){//print out history of groups joined
+//    FILE *fp;   
+//    char temp_filename[FILENAME_LENGTH];;
+//    sprintf(temp_filename,"%s.agglomeration.history",cluster_options->output_filename);
+//    fprintf(stderr,"writing out history file\n");
+//    open_file(&fp,temp_filename, "w", 0);
+//    for(int n=0;n<models->nmodels;n++)
+//     fprintf(fp,"%d %d %d\n",n,history[2*n],history[2*n+1]);
+//    close_file(&fp,temp_filename, 0);
+//    if(history) delete [] history;
+//   }
+//   hcluster.print_centers(stderr,hcluster.best_partition);
+
+//   fprintf(stderr, "%8.3f seconds elapsed to cluster\n",get_time()-start_cluster);
+//   FILE *output_fp;
+//   char temp_filename[FILENAME_LENGTH];
+//   sprintf(temp_filename,"%s.cluster.stats",cluster_options->output_filename);
+//   open_file(&output_fp, temp_filename, "w", "main"); 
+//   hcluster.print_centers(output_fp,hcluster.best_partition);
+//   hcluster.print_cluster_stats(output_fp,hcluster.best_partition);
+//   close_file(&output_fp,temp_filename,"main");
+//   sprintf(temp_filename,"%s.clusters",cluster_options->output_filename);
+//   open_file(&output_fp, temp_filename, "w", "main"); 
+//   hcluster.print_density(output_fp,hcluster.best_partition);
+//   close_file(&output_fp,temp_filename,"main");
   if(models)delete models;
   return;
  }

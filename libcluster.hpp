@@ -30,7 +30,7 @@ using namespace std;
 
 enum _dmatrix_type {NO_DMATRIX,FLOAT,COMPACT};
 enum _simd_type {SCALAR_,SSE2_,SSE3_,AVX_};
-enum _metric_type {RMSD,TMSCORE};
+enum _metric_type {RMSD,TMSCORE, EUCLIDEANSCORE};
 enum _cluster_method{NO_CLUSTER,KMEANS,KCENTERS,HCOMPLETE,HSINGLE,HAVERAGE,DENSITY};
 enum _compute_type{cCPU,cGPU};
 enum _matrix_type{NO_MATRIX,BINARY,TEXT,CHAR};
@@ -812,6 +812,22 @@ class triangular_matrix{
     }
 #endif
   }//end TMSCORE
+  else if (score_type == EUCLIDEANSCORE){ //EUCLIDEANscore
+    if(simd_type == SCALAR_){
+#ifdef OPENMP     
+    int max_threads=omp_get_max_threads();
+    nthreads=(max_threads<nthreads)? max_threads : nthreads;     
+    #pragma omp parallel for num_threads (nthreads) schedule (dynamic)
+#endif
+     for (int i=1;i<length;i++){
+      for (int j=0;j<i;j++){      
+       this->set_matrix(i,j,euclidean_cpu(nats,&(coords[i*pdb_size]),&(coords[j*pdb_size])));
+      }
+     }
+    }else{
+      fprintf(stderr,"unrecognized SIMD type %d\n",simd_type);
+    }
+  }//end EUCLIDEANscore
   else{
    fprintf(stderr,"unrecognized score type %d\n",score_type);
    exit(FALSE);
@@ -3668,6 +3684,7 @@ class cluster_models_set{ //contains names and coords of structures along with d
     start_time = get_time();
     if(score_type == RMSD) greater_is_better=false;
     if(score_type == TMSCORE) greater_is_better=true;
+    if(score_type == EUCLIDEANSCORE) greater_is_better=false;
     if(density_flag){
      //return the density and do nothing else
      fprintf(stderr,"calculating density only\n");
@@ -3962,6 +3979,10 @@ class cluster_models_set{ //contains names and coords of structures along with d
    else if(score_type == TMSCORE){
     dmatrix=new triangular_matrix<T>(nmodels,TMSCORE_MIN_VALUE,TMSCORE_STEP_SIZE_VALUE,1);
     greater_is_better=1;
+   }   
+   else if(score_type == EUCLIDEANSCORE){
+    dmatrix=new triangular_matrix<T>(nmodels, .. , .. , ..);
+    greater_is_better=0;
    }   
    else{
     fprintf(stderr,"undefined score type %d\n",score_type);

@@ -17,6 +17,7 @@ Score_type
 --tmscore         TMSCORE is used as the similarity metric
 --prune_tmscore   TMSCORE is used as the similarity metric for pruning
 --cluster_tmscore TMSCORE is used as the similarity metric for clustering
+--euclidean
 
 simd_type
 --scalar	  normal scalar operations will be used (default)
