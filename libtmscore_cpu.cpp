@@ -368,8 +368,7 @@ float euclidean_cpu(int nat,float *coords1,float *coords2){
   ssq += (c1x - c2x) *  (c1x - c2x) + (c1y - c2y) *  (c1y - c2y) + (c1z - c2z) *  (c1z - c2z);
   
  }
-  rms=sqrt(ssq);
- return(rms);
+ return(sqrt(ssq));
 }
 float rmsd_cpu(int nat,float *coords1,float *coords2){
  double e0=0,d,rr[6], ss[6], e[3],r[3][3],rms=0;

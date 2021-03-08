@@ -1,1 +1,8 @@
 .vscode/*
+error_handlers.o
+fast_protein_cluster
+fast_protein_cluster.o
+libtmscore_cpu.o
+output.agglomeration.history
+output.cluster.stats
+output.clusters

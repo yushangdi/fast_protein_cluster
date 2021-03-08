@@ -54,6 +54,7 @@ float rmsd_cpu(int nat,float *coords1,float *coords2,float *rmatrix); //needed f
 template <class T> float rmsd_cpu_par(int nthreads,int nat,int nmodels,float *coords,triangular_matrix<T> *matrix);
 float rmsd_cpu_par(int nthreads,int nat,int nmodels,float *coords, float *density);
 float tmscore_rmsd_cpu(int nat,float *coords1,float *coords2,float bR[3][3], float bt[3],float *rmsd);
+float euclidean_cpu(int nat,float *coords1,float *coords2); 
 
 //sse2
 #ifdef SSE2
@@ -3981,7 +3982,7 @@ class cluster_models_set{ //contains names and coords of structures along with d
     greater_is_better=1;
    }   
    else if(score_type == EUCLIDEANSCORE){
-    dmatrix=new triangular_matrix<T>(nmodels, .. , .. , ..);
+    dmatrix=new triangular_matrix<T>(nmodels, RMSD_MIN_VALUE,RMSD_STEP_SIZE_VALUE,0);
     greater_is_better=0;
    }   
    else{
