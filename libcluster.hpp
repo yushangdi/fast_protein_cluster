@@ -54,7 +54,7 @@ float rmsd_cpu(int nat,float *coords1,float *coords2,float *rmatrix); //needed f
 template <class T> float rmsd_cpu_par(int nthreads,int nat,int nmodels,float *coords,triangular_matrix<T> *matrix);
 float rmsd_cpu_par(int nthreads,int nat,int nmodels,float *coords, float *density);
 float tmscore_rmsd_cpu(int nat,float *coords1,float *coords2,float bR[3][3], float bt[3],float *rmsd);
-float euclidean_cpu(int nat,float *coords1,float *coords2); 
+float euclidean_cpu(int nat,int dim,float *coords1,float *coords2); 
 
 //sse2
 #ifdef SSE2
@@ -174,6 +174,7 @@ class cluster_options{
  _input_type input_type;
  int
   all_atoms,                   //whether to calculate RMSD on all_atoms or the default CA's only -not yet implemented
+  ndim,
   //Cluster Variables
   nclusters,                   //number of final clusters -used for kmeans and kcenters
   //variables for kmeans    
@@ -201,6 +202,7 @@ class cluster_options{
    compute=cCPU;
    method=KMEANS;
    all_atoms=0;
+   ndim=3;
    nclusters=5;
    fine_parallel=0;
    gpu_id=-1;
@@ -822,7 +824,7 @@ class triangular_matrix{
 #endif
      for (int i=1;i<length;i++){
       for (int j=0;j<i;j++){      
-       this->set_matrix(i,j,euclidean_cpu(nats,&(coords[i*pdb_size]),&(coords[j*pdb_size])));
+       this->set_matrix(i,j,euclidean_cpu(nats,pdb_size,&(coords[i*pdb_size]),&(coords[j*pdb_size])));
       }
      }
     }else{
@@ -3677,6 +3679,7 @@ class cluster_models_set{ //contains names and coords of structures along with d
     _simd_type simd_type = (_simd_type) va_arg(args,int);
     density_flag=va_arg(args,int);
     gpu_id=va_arg(args,int);
+    if(score_type == EUCLIDEANSCORE) pdb_size=va_arg(args,int);
     va_end(args);
     double start_time = get_time();  
     if(score_type == EUCLIDEANSCORE){
@@ -4187,7 +4190,7 @@ class cluster_models_set{ //contains names and coords of structures along with d
   char line[LINE_LENGTH];
   int nstructs=0, m=0, i;
   float f, a_x, a_y, a_z;
-  pdb_size = 3;
+  // pdb_size = 3;
   nat = 1;
   open_file(&pFile, filename, "r", "reading coords"); 
   while (fgets(line, LINE_LENGTH, pFile)){
@@ -4199,25 +4202,33 @@ class cluster_models_set{ //contains names and coords of structures along with d
   rewind(pFile);
       for(i=0;i<nstructs;i++)
       {
-        if(1  == fscanf(pFile, "%f", &f)){
-        a_x = f;
-        }else{
-        printf("Failed to read point.\n");
+        for(int d=0;d<pdb_size;d++){
+          if(1  == fscanf(pFile, "%f", &f)){
+          coords[m++]=f;
+          }else{
+          printf("Failed to read point.\n");
+          exit(1);
+          }         
         }
-        if(1  == fscanf(pFile, "%f", &f)){
-        a_y = f;
-        }else{
-        printf("Failed to read point.\n");
-        }
-        if(1  == fscanf(pFile, "%f", &f)){
-        a_z = f;
-        }else{
-        printf("Failed to read point.\n");
-        }
+      //   if(1  == fscanf(pFile, "%f", &f)){
+      //   a_x = f;
+      //   }else{
+      //   printf("Failed to read point.\n");
+      //   }
+      //   if(1  == fscanf(pFile, "%f", &f)){
+      //   a_y = f;
+      //   }else{
+      //   printf("Failed to read point.\n");
+      //   }
+      //   if(1  == fscanf(pFile, "%f", &f)){
+      //   a_z = f;
+      //   }else{
+      //   printf("Failed to read point.\n");
+      //   }
 
-       coords[m++]=a_x;
-       coords[m++]=a_y;
-       coords[m++]=a_z;
+      //  coords[m++]=a_x;
+      //  coords[m++]=a_y;
+      //  coords[m++]=a_z;
     }
    //check_coords();
    nmodels=nstructs;

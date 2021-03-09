@@ -2,6 +2,8 @@ Protinfo_cluster -i <input_file with decoy files or names> -o <output_file basen
 
 options (can be all upper case or all lower case)
 
+--ndim            dimension of dataset
+
 Compute_type
 --cpu             CPU is used for computations - (default)
 --prune_cpu       CPU is used for pruning computations

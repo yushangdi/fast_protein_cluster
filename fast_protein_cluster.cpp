@@ -99,7 +99,12 @@ int main(int argc, char *argv[]){
        i++;
        nthreads=atoi(argv[i]); 
       }      
-             
+      else if(!strcmp(switch_word,"NDIM") || !strcmp(switch_word,"ndim"))
+      {
+       i++;     
+       cluster_options.ndim=atoi(argv[i]); 
+      }   
+                    
       //compute type
       else if(!strcmp(switch_word,"CPU") || !strcmp(switch_word,"cpu"))
       {
@@ -872,7 +877,7 @@ void cluster_it(int nthreads,cluster_options *cluster_options,cluster_models_set
                  cluster_options->input_filename,(int*) 0,cluster_options->subset_filename,cluster_options->simd_type,0,cluster_options->gpu_id);
   }
   else{ models=new cluster_models_set<T>("READ_PDB_LIST",nthreads,cluster_options->score_type,cluster_options->all_atoms,cluster_options->compute,cluster_options->distance_matrix_type,
-                 cluster_options->input_filename,(int*) 0,cluster_options->subset_filename,cluster_options->simd_type,0,cluster_options->gpu_id);
+                 cluster_options->input_filename,(int*) 0,cluster_options->subset_filename,cluster_options->simd_type,0,cluster_options->gpu_id,cluster_options->ndim);
   }   
  }
 
